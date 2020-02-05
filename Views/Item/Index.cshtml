@@ -1,0 +1,47 @@
+﻿@inherits DotNetNuke.Web.Mvc.Framework.DnnWebViewPage
+@using Dnn.Test.ModulesTestModule.Components
+@{
+  var tabs = TestRepository.Instance.GetTabs();
+}
+<h2>Test Module</h2>
+
+<p>Current Thread Locale is @System.Threading.Thread.CurrentThread.CurrentCulture.Name</p>
+
+<h2>Through MVC</h2>
+<table>
+  @foreach (var t in tabs)
+  {
+    <tr>
+      <td>@t.TabID</td>
+      <td>@t.TabPath</td>
+      <td>@t.TabName</td>
+      <td>@t.TestLocale</td>
+    </tr>
+  }
+</table>
+
+<h2>Through WebAPI</h2>
+<table id="webapitable">
+  <tr>
+    <td>WebAPI Data:</td>
+  </tr>
+</table>
+
+<script>
+  jQuery(window).load(function () {
+    servicePath = $.dnnSF(@Dnn.ActiveModule.ModuleID).getServiceRoot('TestModule');
+    $.ajax({
+            type: "GET",
+            url: servicePath + 'Test/Tabs',
+            beforeSend: $.dnnSF(@Dnn.ActiveModule.ModuleID).setModuleHeaders
+        })
+      .done(function (retdata) {
+        retdata.forEach(function (t) {
+          console.log(t);
+          $('#webapitable tr:last').after('<tr><td>' + t.TabID + '</td><td>' + t.TabPath + '</td><td>' + t.TabName + '</td><td>' + t.TestLocale + '</td></tr>');
+        });
+      })
+      .fail(function (xhr, status) {
+      });
+  });
+</script>
